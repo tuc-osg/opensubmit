@@ -22,7 +22,7 @@ This is the local fork of OpenSubmit, a small web application for managing stude
 assignment solutions in a university environment.
 
 To install this version (not the official one) via `pip`
-   - opensubmit-web: `pip install --upgrade git+https://github.com/tuc-osg/opensubmit#egg=opensubmit-web\&subdirectory=web`
+   - opensubmit-web: ``pip install --upgrade git+https://github.com/tuc-osg/opensubmit#egg=opensubmit-web\&subdirectory=web`
    - opensubmit-exec: `pip install --upgrade git+https://github.com/tuc-osg/opensubmit#egg=opensubmit-exec\&subdirectory=executor`
 
 Check http://docs.open-submit.org for more information, including the latest `changelog <http://docs.open-submit.org/en/latest/changelog.html>`_.
