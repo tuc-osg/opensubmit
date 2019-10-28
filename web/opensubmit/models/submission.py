@@ -635,14 +635,12 @@ class Submission(models.Model):
             tempdir = tempfile.mkdtemp()
             self.copy_file_upload(tempdir)
             # Add content to final ZIP file
-            allfiles = [(subdir, files)
-                        for (subdir, dirs, files) in os.walk(tempdir)]
+            allfiles = [(subdir, files) for (subdir, dirs, files) in os.walk(tempdir)]
             for subdir, files in allfiles:
                 for f in files:
                     zip_relative_dir = subdir.replace(tempdir, "")
                     zip_relative_file = '%s/%s' % (zip_relative_dir, f)
-                    z.write(subdir + "/" + f, submdir + 'student_files/%s' %
-                            zip_relative_file, zipfile.ZIP_DEFLATED)
+                    z.write(subdir + "/" + f, submdir + 'student_files/%s' % zip_relative_file, zipfile.ZIP_DEFLATED)
         # add text file with additional information
         info = self.info_file()
         z.write(info.name, submdir + "info.txt")
