@@ -614,8 +614,7 @@ class Submission(models.Model):
                 shutil.copyfile(self.file_upload.absolute_path(),
                                 targetdir + "/" + self.file_upload.basename())
         except IOError:
-            logger.error("I/O exception while accessing %s." %
-                         (self.file_upload.absolute_path()))
+            logger.error("I/O exception while accessing %s." % (self.file_upload.absolute_path()))
             pass
         except (UnicodeEncodeError, NotImplementedError)  as e:
             # unpacking not possible, just copy it
