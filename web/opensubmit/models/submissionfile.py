@@ -31,13 +31,12 @@ def is_gzipfile(filename):
        REMARK: Is isn't very efficient, since the file is opened twice in the success case. However, it fits better 
        into the current program structure.
     '''
-    ret=True
     try:
         gzf=gzip.open(filename)
-    except gzip.BadGzipFile:
+    except Exception: # I know, bad style, but gzip.BadGzipFile is new in 3.8
         return False
     else:
-        close(gzf)
+        gzf.close()
         return True
 
 class ValidSubmissionFileManager(models.Manager):
@@ -93,11 +92,10 @@ class SubmissionFile(models.Model):
         def md5_add_text(text):
             try:
                 text = str(text, errors='ignore')
-                text = text.replace(' ', '').replace(
-                    '\n', '').replace('\t', '')
+                text = text.replace(' ', '').replace('\n', '').replace('\t', '')
                 hexvalues = hashlib.md5(text.encode('utf-8')).hexdigest()
                 md5_set.append(hexvalues)
-            except Exception as e:
+            except Exception:
                 # not unicode decodable
                 pass
 
@@ -109,17 +107,15 @@ class SubmissionFile(models.Model):
                 md5_set.append(md5.hexdigest())
             except Exception:
                 pass
-
             
         try:
-            // TODO: mw: it seems, there is no closing for tar+zip. Check it later, maybe better with 'with'
             if zipfile.is_zipfile(self.attachment.path):
                 zf = zipfile.ZipFile(self.attachment.path, 'r')
                 for zipinfo in zf.infolist():
                     if zipinfo.file_size < MAX_MD5_FILE_SIZE:
                         md5_add_text(zf.read(zipinfo))
-            if is_gzipfile(self.attachment.path):
-                with gzip.open(lf.attachment.path, 'r') as gzf:
+            elif is_gzipfile(self.attachment.path):
+                with gzip.open(self.attachment.path, 'r') as gzf:
                     md5_add_file(gzf)
             elif tarfile.is_tarfile(self.attachment.path):
                 tf = tarfile.open(self.attachment.path, 'r')
@@ -214,8 +210,7 @@ class SubmissionFile(models.Model):
         elif is_gzipfile(self.attachment.path):
             gzf = gzip.open(self.attachment.path,'r')
             fname=gzf.name
-            result = [{'name': fname, 'is_code': is_code(
-                fname), 'preview': sanitize(f.read())}, ]
+            result = [{'name': fname, 'is_code': is_code(fname), 'preview': sanitize(gzf.read())}, ]
         elif tarfile.is_tarfile(self.attachment.path):
             tf = tarfile.open(self.attachment.path, 'r')
             for tarinfo in tf.getmembers():
