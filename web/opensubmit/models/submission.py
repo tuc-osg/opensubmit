@@ -6,11 +6,12 @@ from django.core.urlresolvers import reverse
 from datetime import datetime
 import tempfile
 import zipfile
+import gzip
 import tarfile
 
 from opensubmit import mails
 
-from .submissionfile import upload_path, SubmissionFile
+from .submissionfile import upload_path, SubmissionFile, is_gzipfile
 from .submissiontestresult import SubmissionTestResult
 
 import logging
@@ -600,6 +601,10 @@ class Submission(models.Model):
             if zipfile.is_zipfile(self.file_upload.absolute_path()):
                 f = zipfile.ZipFile(self.file_upload.absolute_path(), 'r')
                 f.extractall(targetdir)
+            elif is_gzipfile(self.file_upload.absolute_path()):
+                with gzip.open(self.file_upload.absolute_path()),'r'):
+                    with open(targetdir + "/" + self.file_upload.basename(),'w') as ftarget:
+                        shutil.copyfileobj(gzf,ftarget)
             elif tarfile.is_tarfile(self.file_upload.absolute_path()):
                 tar = tarfile.open(self.file_upload.absolute_path())
                 tar.extractall(targetdir)

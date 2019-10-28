@@ -24,7 +24,7 @@ def upload_path(instance, filename):
     filename = unicodedata.normalize('NFKD', filename).lower()
     return os.path.join(str(timezone.now().date().isoformat()), filename)
 
-def is_gzipfile(filename);
+def is_gzipfile(filename):
     '''
        GzipFile misses to provide a method to test file type (such as tar.is_tarfile()).
        This function serves as replacement.
@@ -110,15 +110,17 @@ class SubmissionFile(models.Model):
             except Exception:
                 pass
 
+            
         try:
+            // TODO: mw: it seems, there is no closing for tar+zip. Check it later, maybe better with 'with'
             if zipfile.is_zipfile(self.attachment.path):
                 zf = zipfile.ZipFile(self.attachment.path, 'r')
                 for zipinfo in zf.infolist():
                     if zipinfo.file_size < MAX_MD5_FILE_SIZE:
                         md5_add_text(zf.read(zipinfo))
             if is_gzipfile(self.attachment.path):
-                gzf = gzip.open(lf.attachment.path, 'r')
-                md5_add_file(gzf)
+                with gzip.open(lf.attachment.path, 'r') as gzf:
+                    md5_add_file(gzf)
             elif tarfile.is_tarfile(self.attachment.path):
                 tf = tarfile.open(self.attachment.path, 'r')
                 for tarinfo in tf.getmembers():
