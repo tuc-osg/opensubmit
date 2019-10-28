@@ -6,6 +6,7 @@ from django.conf import settings
 
 import zipfile
 import tarfile
+import gzip
 import unicodedata
 import os
 import hashlib
@@ -23,6 +24,21 @@ def upload_path(instance, filename):
     filename = unicodedata.normalize('NFKD', filename).lower()
     return os.path.join(str(timezone.now().date().isoformat()), filename)
 
+def is_gzipfile(filename);
+    '''
+       GzipFile misses to provide a method to test file type (such as tar.is_tarfile()).
+       This function serves as replacement.
+       REMARK: Is isn't very efficient, since the file is opened twice in the success case. However, it fits better 
+       into the current program structure.
+    '''
+    ret=True
+    try:
+        gzf=gzip.open(filename)
+    except gzip.BadGzipFile:
+        return False
+    else:
+        close(gzf)
+        return True
 
 class ValidSubmissionFileManager(models.Manager):
     '''
@@ -100,6 +116,9 @@ class SubmissionFile(models.Model):
                 for zipinfo in zf.infolist():
                     if zipinfo.file_size < MAX_MD5_FILE_SIZE:
                         md5_add_text(zf.read(zipinfo))
+            if is_gzipfile(self.attachment.path):
+                gzf = gzip.open(lf.attachment.path, 'r')
+                md5_add_file(gzf)
             elif tarfile.is_tarfile(self.attachment.path):
                 tf = tarfile.open(self.attachment.path, 'r')
                 for tarinfo in tf.getmembers():
@@ -143,7 +162,7 @@ class SubmissionFile(models.Model):
             Determines if the attachment is an archive.
         '''
         try:
-            if zipfile.is_zipfile(self.attachment.path) or tarfile.is_tarfile(self.attachment.path):
+            if zipfile.is_zipfile(self.attachment.path) or tarfile.is_tarfile(self.attachment.path) or is_gzipfile(self.attachment.path):
                 return True
         except Exception:
             pass
@@ -190,6 +209,11 @@ class SubmissionFile(models.Model):
                 else:
                     result.append(
                         {'name': zipinfo.filename, 'is_code': False, 'preview': '(maximum size exceeded)'})
+        elif is_gzipfile(self.attachment.path):
+            gzf = gzip.open(self.attachment.path,'r')
+            fname=gzf.name
+            result = [{'name': fname, 'is_code': is_code(
+                fname), 'preview': sanitize(f.read())}, ]
         elif tarfile.is_tarfile(self.attachment.path):
             tf = tarfile.open(self.attachment.path, 'r')
             for tarinfo in tf.getmembers():
