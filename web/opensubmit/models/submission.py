@@ -602,7 +602,7 @@ class Submission(models.Model):
                 f = zipfile.ZipFile(self.file_upload.absolute_path(), 'r')
                 f.extractall(targetdir)
             elif is_gzipfile(self.file_upload.absolute_path()):
-                with gzip.open(self.file_upload.absolute_path()),'r'):
+                with gzip.open(self.file_upload.absolute_path(),'r') as gzf:
                     with open(targetdir + "/" + self.file_upload.basename(),'w') as ftarget:
                         shutil.copyfileobj(gzf,ftarget)
             elif tarfile.is_tarfile(self.file_upload.absolute_path()):
