@@ -618,8 +618,7 @@ class Submission(models.Model):
             pass
         except (UnicodeEncodeError, NotImplementedError)  as e:
             # unpacking not possible, just copy it
-            shutil.copyfile(self.file_upload.absolute_path(),
-                            targetdir + "/" + self.file_upload.basename())
+            shutil.copyfile(self.file_upload.absolute_path(), targetdir + "/" + self.file_upload.basename())
             pass
 
     def add_to_zipfile(self, z):
