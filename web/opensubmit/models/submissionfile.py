@@ -33,6 +33,7 @@ def is_gzipfile(filename):
     '''
     try:
         gzf=gzip.open(filename)
+        gzf.read()
     except Exception: # I know, bad style, but gzip.BadGzipFile is new in 3.8
         return False
     else:
