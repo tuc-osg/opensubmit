@@ -604,7 +604,7 @@ class Submission(models.Model):
             elif is_gzipfile(self.file_upload.absolute_path()):
                 with gzip.open(self.file_upload.absolute_path(),'r') as gzfile:
                     with open(targetdir + "/" + self.file_upload.basename(),'w') as target:
-                        target.writelines(gzfile.readlines()) 
+                        target.write('\n'.join(gzfile.readlines()).decode('utf-8')) 
             elif tarfile.is_tarfile(self.file_upload.absolute_path()):
                 tar = tarfile.open(self.file_upload.absolute_path())
                 tar.extractall(targetdir)
