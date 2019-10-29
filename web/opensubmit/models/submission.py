@@ -602,8 +602,8 @@ class Submission(models.Model):
                 f = zipfile.ZipFile(self.file_upload.absolute_path(), 'r')
                 f.extractall(targetdir)
             elif is_gzipfile(self.file_upload.absolute_path()):
-                with gzip.open(self.file_upload.absolute_path(),'r') as gzf:
-                    with open(targetdir + "/" + self.file_upload.basename(),'w') as ftarget:
+                with gzip.open(self.file_upload.absolute_path(),'rb') as gzf:
+                    with open(targetdir + "/" + self.file_upload.basename(),'wb') as ftarget:
                         shutil.copyfileobj(gzf,ftarget)
             elif tarfile.is_tarfile(self.file_upload.absolute_path()):
                 tar = tarfile.open(self.file_upload.absolute_path())
@@ -615,7 +615,7 @@ class Submission(models.Model):
         except IOError:
             logger.error("I/O exception while accessing %s." % (self.file_upload.absolute_path()))
             pass
-        except (UnicodeEncodeError, NotImplementedError)  as e:
+        except (UnicodeEncodeError, NotImplementedError):
             # unpacking not possible, just copy it
             shutil.copyfile(self.file_upload.absolute_path(), targetdir + "/" + self.file_upload.basename())
             pass
