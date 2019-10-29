@@ -596,15 +596,15 @@ class Submission(models.Model):
         assert(self.file_upload)
         # unpack student data to temporary directory
         # os.chroot is not working with tarfile support
-        tempdir = tempfile.mkdtemp()
+        #tempdir = tempfile.mkdtemp()
         try:
             if zipfile.is_zipfile(self.file_upload.absolute_path()):
                 f = zipfile.ZipFile(self.file_upload.absolute_path(), 'r')
                 f.extractall(targetdir)
             elif is_gzipfile(self.file_upload.absolute_path()):
-                with gzip.open(self.file_upload.absolute_path(),'rb') as gzf:
-                    with open(targetdir + "/" + self.file_upload.basename(),'wb') as ftarget:
-                        shutil.copyfileobj(gzf,ftarget)
+                with gzip.open(self.file_upload.absolute_path(),'r') as gzfile:
+                    with open(targetdir + "/" + self.file_upload.basename(),'w') as ftarget:
+                        target.writelines(gzfile.readlines())
             elif tarfile.is_tarfile(self.file_upload.absolute_path()):
                 tar = tarfile.open(self.file_upload.absolute_path())
                 tar.extractall(targetdir)
