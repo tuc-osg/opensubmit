@@ -209,8 +209,12 @@ class SubmissionFile(models.Model):
                     result.append(
                         {'name': zipinfo.filename, 'is_code': False, 'preview': '(maximum size exceeded)'})
         elif is_gzipfile(self.attachment.path):
+            # determine original file name
+            from subprocess import check_output
+            names = check_output(['gunzip', '-Nlq','self.attachment.path])
+            names = names.strip().split("%",1)
+            fname = names[1].strip()
             gzf = gzip.open(self.attachment.path,'r')
-            fname=gzf.name
             result = [{'name': fname, 'is_code': is_code(fname), 'preview': sanitize(gzf.read())}, ]
         elif tarfile.is_tarfile(self.attachment.path):
             tf = tarfile.open(self.attachment.path, 'r')
