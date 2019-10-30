@@ -81,9 +81,9 @@ class UserProfile(models.Model):
         qs_without_soft_deadline = qs.filter(soft_deadline__isnull=True)
         qs_with_soft_deadline = qs.filter(soft_deadline__isnull=False)
         ass_list = [
-            ass for ass in qs_without_soft_deadline if ass not in waiting_for_action]
-        ass_list += [
             ass for ass in qs_with_soft_deadline if ass not in waiting_for_action]
+        ass_list += [
+            ass for ass in qs_without_soft_deadline if ass not in waiting_for_action]
         return ass_list
 
     def gone_assignments(self):
