@@ -137,7 +137,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         for sub in in_progress:
             # The function for getting an assignment download URL
             # expects the current request object
-            sub.description_url = assign.url(self.assignment.request)
+            sub.description_url = sub.assignment.url(self.assignment.request)
         context['subs_in_progress'] = in_progress
         # Closed student submissions, graded ones first
         context['subs_finished'] = self.request.user.authored.all(). \
