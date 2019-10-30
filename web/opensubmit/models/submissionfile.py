@@ -45,19 +45,20 @@ def gzip_originalfilename(filename):
         If it isn't there, guess from name of compressed file.
         For structcure of gz header, see e.g. http://www.zlib.org/rfc-gzip.html#file-format
     ''' 
-    with open(filename,'rb') as file:
-        file.seek(3)
-        flag=struct.unpack('B',file.read(1))[0]
-        # TEST 2!
-        if (flag & 0b00001000) == 0: # file name not present
-            name=filename[:filename.find('.gz')]
-        else:
-            # determine start of zero-terminated file name
-            start = 10
-            if (flag & 0b00000100) != 0: # extra filed present
-                start += struct.unpack('H',file.read(2))[0]
-            file.seek(start)
-            name=''.join(iter(lambda: file.read(1), '\x00'))
+    name=filename[:filename.find('.gz')]
+    #with open(filename,'rb') as file:
+    #    file.seek(3)
+    #    flag=struct.unpack('B',file.read(1))[0]
+    #    # TEST 2!
+    #    if (flag & 0b00001000) == 0: # file name not present
+    #        name=filename[:filename.find('.gz')]
+    #    else:
+    #        # determine start of zero-terminated file name
+    #        start = 10
+    #        if (flag & 0b00000100) != 0: # extra filed present
+    #            start += struct.unpack('H',file.read(2))[0]
+    #        file.seek(start)
+    #        name=''.join(iter(lambda: file.read(1), '\x00'))
     return name
 
 class ValidSubmissionFileManager(models.Manager):
