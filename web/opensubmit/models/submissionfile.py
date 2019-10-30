@@ -7,6 +7,7 @@ from django.conf import settings
 import zipfile
 import tarfile
 import gzip
+import struct
 import unicodedata
 import os
 import hashlib
@@ -31,13 +32,32 @@ def is_gzipfile(filename):
        REMARK: Is isn't very efficient, since the file is opened twice in the success case. However, it fits better 
        into the current program structure.
     '''
-    import struct
     with open(filename,'rb') as file:
-        magic=struct.unpack('h',file.read(2))[0]
-        if (magic & 0xffff) == 0x8B1F:
+        magic=struct.unpack('H',file.read(2))[0]
+        if magic == 0x8B1F:
             return True
         else:
             return False
+
+def gzip_originalfilename(filename):
+    '''
+        Try to extract original file name.
+        If it isn't there, guess from name of compressed file.
+        For structcure of gz header, see e.g. http://www.zlib.org/rfc-gzip.html#file-format
+    ''' 
+    with open(filename,'rb') as file:
+        file.seek(3)
+        flag=struct.unpack('B',file.read(1))
+        if flag & 0b00001000: # file name present
+            name=filename[:filename.find('.gz')]
+        else:
+            # determine start of zero-terminated file name
+            start = 10
+            if flag & 0b00000100: # extra filed present
+                start += struct.unpack('H',file.read(2))
+            file.seek(start)
+            name=''.join(iter(lambda: file.read(1), '\x00'))
+    return name
 
 class ValidSubmissionFileManager(models.Manager):
     '''
@@ -208,13 +228,9 @@ class SubmissionFile(models.Model):
                     result.append(
                         {'name': zipinfo.filename, 'is_code': False, 'preview': '(maximum size exceeded)'})
         elif is_gzipfile(self.attachment.path):
-            # determine original file name
-            #from subprocess import check_output
-            #names = check_output(['gunzip', '-Nlq','self.attachment.path])
-            #names = names.strip().split("%",1)
-            #fname = names[1].strip()
+            fname = gzip_originalfilename(self.attachment.path)
             gzf = gzip.open(self.attachment.path,'r')
-            result = [{'name': gzf.filename, 'is_code': is_code(fname), 'preview': sanitize(gzf.read())}, ]
+            result = [{'name': fname, 'is_code': is_code(fname), 'preview': sanitize(gzf.read())}, ]
         elif tarfile.is_tarfile(self.attachment.path):
             tf = tarfile.open(self.attachment.path, 'r')
             for tarinfo in tf.getmembers():
