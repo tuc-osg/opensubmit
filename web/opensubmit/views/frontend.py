@@ -127,14 +127,18 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Student submissions under validation / grading
-        context['subs_in_progress'] = self.request.user.authored.all(). \
+        in_progress=self.request.user.authored.all(). \
             exclude(assignment__course__active=False). \
             exclude(state=Submission.RECEIVED). \
             exclude(state=Submission.WITHDRAWN). \
             exclude(state=Submission.CLOSED). \
             exclude(state=Submission.CLOSED_TEST_FULL_PENDING). \
             order_by('-created')
-
+        for sub in in_progress:
+            # The function for getting an assignment download URL
+            # expects the current request object
+            sub.description_url = assign.url(self.assignment.request)
+        context['subs_in_progress'] = in_progress
         # Closed student submissions, graded ones first
         context['subs_finished'] = self.request.user.authored.all(). \
             exclude(assignment__course__active=False). \
