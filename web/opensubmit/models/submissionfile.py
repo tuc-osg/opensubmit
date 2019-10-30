@@ -45,7 +45,14 @@ def gzip_originalfilename(filename):
         If it isn't there, guess from name of compressed file.
         For structcure of gz header, see e.g. http://www.zlib.org/rfc-gzip.html#file-format
     ''' 
-    name=filename[:filename.find('.gz')]
+    dot=filename.find('.')
+    if dot == -1:
+        name = filename 
+    else:    
+        name=filename[:filename.find('.gz')]
+        underline=name.find('_',dot)
+        if underline != -1:
+            name = name[:underl]
     #with open(filename,'rb') as file:
     #    file.seek(3)
     #    flag=struct.unpack('B',file.read(1))[0]
