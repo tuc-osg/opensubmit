@@ -149,7 +149,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['today'] = datetime.now()
         context['user'] = self.request.user
         context['assign_missed'] = self.request.user.profile.gone_assignments()
-        assignments = self.request.user.profile.open_assignments().order_by(DASHBOARD_ORDER)
+        assignments = self.request.user.profile.open_assignments()
         for assign in assignments:
             # The function for getting an assignment download URL
             # expects the current request object
