@@ -47,14 +47,14 @@ def gzip_originalfilename(filename):
     ''' 
     with open(filename,'rb') as file:
         file.seek(3)
-        flag=struct.unpack('B',file.read(1))
-        if flag & 0b00001000: # file name present
+        flag=struct.unpack('B',file.read(1))[0]
+        if flag & 0b00001000 != 0: # file name present
             name=filename[:filename.find('.gz')]
         else:
             # determine start of zero-terminated file name
             start = 10
-            if flag & 0b00000100: # extra filed present
-                start += struct.unpack('H',file.read(2))
+            if flag & 0b00000100 != 0: # extra filed present
+                start += struct.unpack('H',file.read(2))[0]
             file.seek(start)
             name=''.join(iter(lambda: file.read(1), '\x00'))
     return name
