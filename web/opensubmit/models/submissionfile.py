@@ -48,8 +48,8 @@ def gzip_originalfilename(filename):
     with open(filename,'rb') as file:
         file.seek(3)
         flag=struct.unpack('B',file.read(1))[0]
-        # TEST!
-        if (flag & 0b00001000) != 0: # file name not present
+        # TEST 2!
+        if (flag & 0b00001000) == 0: # file name not present
             name=filename[:filename.find('.gz')]
         else:
             # determine start of zero-terminated file name
