@@ -78,12 +78,12 @@ class UserProfile(models.Model):
         waiting_for_action = [subm.assignment for subm in self.user.authored.all(
         ).exclude(state=Submission.WITHDRAWN)]
         # Emulate is_null sorting for soft_deadline
-        qs_without_soft_deadline = qs.filter(soft_deadline__isnull=True)
-        qs_with_soft_deadline = qs.filter(soft_deadline__isnull=False)
+        qs_without_deadline = qs.filter(soft_deadline__isnull=True).filter(hard_deadline__isnull=True)
+        qs_with_deadline = qs.filter(soft_deadline__isnull=False) | qs.filter(hard_deadline__isnull=False)
         ass_list = [
-            ass for ass in qs_with_soft_deadline if ass not in waiting_for_action]
+            ass for ass in qs_with_deadline if ass not in waiting_for_action]
         ass_list += [
-            ass for ass in qs_without_soft_deadline if ass not in waiting_for_action]
+            ass for ass in qs_without_deadline if ass not in waiting_for_action]
         return ass_list
 
     def gone_assignments(self):
