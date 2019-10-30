@@ -3,7 +3,7 @@ import configparser
 from django.core.exceptions import ImproperlyConfigured
 
 script_dir = os.path.dirname(__file__)
-VERSION = '0.7.32-gzip'
+VERSION = '0.7.32a'
 
 NOT_CONFIGURED_VALUE = '***not configured***'
 
@@ -190,6 +190,11 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
 )
 SECRET_KEY = config.get("server", "SECRET_KEY")
+
+if config.has_option("views", "DASHBOARD_ORDER"):
+    DASHBOARD_ORDER = config.get("views", "DASHBOARD_ORDER")
+else:
+    DASHBOARD_ORDER = '-created'
 
 TEMPLATES = [
     {
