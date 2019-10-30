@@ -31,14 +31,13 @@ def is_gzipfile(filename):
        REMARK: Is isn't very efficient, since the file is opened twice in the success case. However, it fits better 
        into the current program structure.
     '''
-    try:
-        gzf=gzip.open(filename)
-        gzf.read()
-    except Exception: # I know, bad style, but gzip.BadGzipFile is new in 3.8
-        return False
-    else:
-        gzf.close()
-        return True
+    import struct
+    with open(filename,'rb') as file:
+        magic=struct.unpack('h',file.read(2))[0]
+        if (magic & 0xffff) == 0x8B1F:
+            return True
+        else:
+            return False
 
 class ValidSubmissionFileManager(models.Manager):
     '''
