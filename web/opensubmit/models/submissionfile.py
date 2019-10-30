@@ -48,7 +48,7 @@ def gzip_originalfilename(filename):
     with open(filename,'rb') as file:
         file.seek(3)
         flag=struct.unpack('B',file.read(1))[0]
-        if flag & 0b00001000 != 0: # file name present
+        if flag & 0b00001000 == 0: # file name not present
             name=filename[:filename.find('.gz')]
         else:
             # determine start of zero-terminated file name
@@ -136,7 +136,7 @@ class SubmissionFile(models.Model):
                         md5_add_text(zf.read(zipinfo))
             elif is_gzipfile(self.attachment.path):
                 with gzip.open(self.attachment.path, 'r') as gzf:
-                    md5_add_file(gzf)
+                    md5_add_file(gzf.read())
             elif tarfile.is_tarfile(self.attachment.path):
                 tf = tarfile.open(self.attachment.path, 'r')
                 for tarinfo in tf.getmembers():
