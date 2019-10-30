@@ -27,7 +27,7 @@ def upload_path(instance, filename):
 
 def is_gzipfile(filename):
     '''
-       GzipFile misses to provide a method to test file type (such as tar.is_tarfile()).
+       GzipFile failes to provide a method to test file type (such as tar.is_tarfile()).
        This function serves as replacement.
        REMARK: Is isn't very efficient, since the file is opened twice in the success case. However, it fits better 
        into the current program structure.
@@ -48,12 +48,13 @@ def gzip_originalfilename(filename):
     with open(filename,'rb') as file:
         file.seek(3)
         flag=struct.unpack('B',file.read(1))[0]
-        if flag & 0b00001000 == 0: # file name not present
+        # TEST!
+        if (flag & 0b00001000) != 0: # file name not present
             name=filename[:filename.find('.gz')]
         else:
             # determine start of zero-terminated file name
             start = 10
-            if flag & 0b00000100 != 0: # extra filed present
+            if (flag & 0b00000100) != 0: # extra filed present
                 start += struct.unpack('H',file.read(2))[0]
             file.seek(start)
             name=''.join(iter(lambda: file.read(1), '\x00'))
@@ -136,7 +137,9 @@ class SubmissionFile(models.Model):
                         md5_add_text(zf.read(zipinfo))
             elif is_gzipfile(self.attachment.path):
                 with gzip.open(self.attachment.path, 'r') as gzf:
-                    md5_add_file(gzf.read())
+                    pass
+                    #
+                    #md5_add_file(gzf.read())
             elif tarfile.is_tarfile(self.attachment.path):
                 tf = tarfile.open(self.attachment.path, 'r')
                 for tarinfo in tf.getmembers():
