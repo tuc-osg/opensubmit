@@ -145,9 +145,7 @@ class SubmissionFile(models.Model):
                         md5_add_text(zf.read(zipinfo))
             elif is_gzipfile(self.attachment.path):
                 with gzip.open(self.attachment.path, 'r') as gzf:
-                    pass
-                    #
-                    #md5_add_file(gzf.read())
+                    md5_add_file(gzf.read())
             elif tarfile.is_tarfile(self.attachment.path):
                 tf = tarfile.open(self.attachment.path, 'r')
                 for tarinfo in tf.getmembers():
