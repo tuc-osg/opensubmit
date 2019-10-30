@@ -84,7 +84,7 @@
             {% for submission in subs_in_progress %} 
                 <tr {% if submission.passed or submission.failed %}style="font-style: italic"{%endif%}>
                     <td><a href="{{ submission.assignment.course.homepage }}">{{ submission.assignment.course }}</a></td>
-                    <td><a href="{{ submission.assignment.description }}">{{ submission.assignment }}</a></td>
+                    <td><a href="{{ submission.assignment.download }}">{{ submission.assignment }}</a></td>
                     <td>{% deadline_timeout submission.assignment %}</td>
                     <td>
                         <span class="{{ submission|state_label_css }}">{{ submission.state_for_students }}</span>
