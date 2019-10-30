@@ -52,7 +52,7 @@ def gzip_originalfilename(filename):
         name=filename[:filename.find('.gz')]
         underline=name.find('_',dot)
         if underline != -1:
-            name = name[:underl]
+            name = name[:underline]
     #with open(filename,'rb') as file:
     #    file.seek(3)
     #    flag=struct.unpack('B',file.read(1))[0]
